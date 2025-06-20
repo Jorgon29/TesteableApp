@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 
@@ -33,7 +34,7 @@ fun TipCalculatorScreen() {
 
     val bill = billAmount.toDoubleOrNull() ?: 0.0
     val tip = calculateTip(bill, tipPercentage, roundUp)
-    val totalPerPerson = if (numberOfPeople > 0) (bill + tip) / numberOfPeople else 0.0
+    val totalPerPerson = totalPerPerson(numberOfPeople, bill, tip)
 
     Column(
         modifier = Modifier.padding(32.dp),
@@ -53,7 +54,7 @@ fun TipCalculatorScreen() {
             keyboardOptions = KeyboardOptions.Default.copy(
                 keyboardType = KeyboardType.Number
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("amountTextField")
         )
 
         Text("Porcentaje de propina: $tipPercentage%")
@@ -62,7 +63,7 @@ fun TipCalculatorScreen() {
             onValueChange = { tipPercentage = it.toInt() },
             valueRange = 0f..50f,
             steps = 49,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth().testTag("percentSlider")
         )
 
         Text("Número de personas: $numberOfPeople")
@@ -86,7 +87,8 @@ fun TipCalculatorScreen() {
         ) {
             Checkbox(
                 checked = roundUp,
-                onCheckedChange = { roundUp = it }
+                onCheckedChange = { roundUp = it },
+                modifier = Modifier.testTag("roundCheckBox")
             )
             Text("Redondear propina", modifier = Modifier.padding(start = 8.dp))
         }
@@ -110,4 +112,8 @@ fun calculateTip(amount: Double, tipPercent: Int, roundUp: Boolean): Double {
         tip = kotlin.math.ceil(tip)
     }
     return tip
+}
+
+fun totalPerPerson(numberOfPeople: Int, bill: Double, tip: Double): Double{
+    return if (numberOfPeople > 0) (bill + tip) / numberOfPeople else 0.0
 }
